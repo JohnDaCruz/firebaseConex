@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from "react-native";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../config/firebaseconfig";
 import react, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "expo-router";
@@ -9,21 +9,13 @@ export default function Login() {
     const [senha, setSenha] = useState()
     const router = useRouter()
 
-    useEffect(() => {
-        const listener = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                router.push('../user/user')
-            }
-        })
-        return listener
-    }, [])
-
-    const login = () => {
-        signInWithEmailAndPassword(auth, email, senha)
+    const criarConta = () => {
+        createUserWithEmailAndPassword(auth, email, senha)
             .then((userCredential) => {
                 // Signed in
                 const user = userCredential.user;
-                console.log(user.email, 'logado')
+                console.log(user.email, 'Usuário criado')
+                router.push('../user/user')
                 // ...
             })
             .catch((error) => {
@@ -35,17 +27,17 @@ export default function Login() {
     return (
         <View style={styles.container}>
 
-            <Text style={styles.welcome}>Welcome</Text>
+            <Text style={styles.welcome}>Criar conta</Text>
             <TextInput style={styles.input} placeholder="Email..." value={email} onChangeText={(text) => { setEmail(text) }} />
             <TextInput style={styles.input} placeholder="Senha..." value={senha} onChangeText={(text) => { setSenha(text) }} />
 
             <View style={styles.inputsView}>
-                <TouchableOpacity onPress={login}>
-                    <Text style={styles.textLogin}>Login</Text>
+                <TouchableOpacity onPress={criarConta}>
+                    <Text style={styles.textLogin}>Criar conta</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => router.push('../register/register')}>
-                    <Text style={styles.textRegister}>Registrar-se</Text>
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Text style={styles.voltar}>Voltar</Text>
                 </TouchableOpacity>
             </View>
 
@@ -78,8 +70,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 20,
         marginBottom: 20
-    },
-    textRegister: {
-
     }
 });
